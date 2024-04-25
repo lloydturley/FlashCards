@@ -1,11 +1,18 @@
+import os.path
 import random
 from tkinter import *
 import pandas
 
 BACKGROUND_COLOR = "#B1DDC6"
 
-data = pandas.read_csv("./data/french_words.csv")
-to_learn = data.to_dict(orient="records")
+
+if os.path.exists("./data/words_to_learn.csv"):
+    data = pandas.read_csv("./data/words_to_learn.csv")
+    to_learn = data.to_dict(orient="records")
+else:
+    data = pandas.read_csv("./data/french_words.csv")
+    to_learn = data.to_dict(orient="records")
+
 current_card = {}
 
 
@@ -25,6 +32,13 @@ def flip_card():
     canvas.itemconfig(card_background, image=card_back_image)
 
 
+def is_known():
+    to_learn.remove(current_card)
+    next_card()
+    data2 = pandas.DataFrame(to_learn)
+    data2.to_csv("./data/words_to_learn.csv", index=False)
+
+
 window = Tk()
 window.title("Flashy")
 window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
@@ -41,7 +55,7 @@ canvas.grid(row=0, column=0, columnspan=2)
 
 right_image = PhotoImage(file="./images/right.png")
 wrong_image = PhotoImage(file="./images/wrong.png")
-right_btn = Button(image=right_image, highlightthickness=0, command=next_card)
+right_btn = Button(image=right_image, highlightthickness=0, command=is_known)
 wrong_btn = Button(image=wrong_image, highlightthickness=0, command=next_card)
 wrong_btn.grid(row=1, column=0)
 right_btn.grid(row=1, column=1)
